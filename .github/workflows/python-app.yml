@@ -1,0 +1,80 @@
+name: Python application
+
+on:
+  #push:
+  #  branches: [ "main" ]
+  #pull_request:
+  #  branches: [ "main" ]
+  watch:
+    types: started
+  # executed once a week on Sundays at 00:00
+  schedule:
+    # - cron: "0 0 * * 1"
+    # 每2小时更新的 00:00 (UTC+8 时间) 触发
+    - cron: "0 */2 * * *"
+
+# 设置 GITHUB_TOKEN 的默认权限，允许写入内容
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyYAML tqdm
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: subscribe：collect.py
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        #flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        #flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        git clone https://github.com/wzdnzd/aggregator.git
+        python -u subscribe/collect.py
+        #save it to ['/home/runner/work/aggregator/aggregator/data/clash.yaml', '/home/runner/work/aggregator/aggregator/data/v2ray.txt', '/home/runner/work/aggregator/aggregator/data/singbox.json']
+        awk '!/试用|订购|线路/' /home/runner/work/aggregator/aggregator/data/clash.yaml > /home/runner/work/aggregator/aggregator/data/clash-new.yaml
+    - name : 上传结果内容｜Upload artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: aggregator
+        path: data
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v4.6.0
+      with:
+        # Artifact name
+        name: aggregator.zip # optional, default is artifact
+        # A file, directory or wildcard pattern that describes what to upload
+        path: data
+        
+      # 步骤 3: 获取日期和变动的文件名
+      # 这个步骤会创建环境变量，供下一步使用
+    - name: 获取日期和变动的文件名
+      id: vars
+      run: |
+        # 获取当前日期，格式为 YYYY-MM-DD
+        echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+        # 获取所有变动（新增、修改）的文件列表
+        echo "这是一个动态文件" > "report-$(date +'%Y-%m-%d').md"
+        # git status --porcelain 会列出变动文件，我们提取出文件名
+        # tr '\n' ' ' 将换行符替换为空格，使文件名在同一行显示
+        echo "CHANGED_FILES=$(git status --porcelain | awk '{print $2}' | tr '\n' ' ')" >> $GITHUB_ENV
+    # 步骤 4: 提交并推送文件
+    - name: 提交并推送文件
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        # 动态构造提交信息
+        commit_message: "chenxx(auto-update): 更新于 ${{ env.CURRENT_DATE }} - 文件: ${{ env.CHANGED_FILES }} [ci skip]"
+        # 提交信息末尾添加 [ci skip] 以防止工作流循环触发
+        # commit_options: '--message "[ci skip]"'
+        # 要添加的文件，'.' 代表所有文件
+        # file_pattern: .
+        file_pattern: data
