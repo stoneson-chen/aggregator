@@ -1,5 +1,7 @@
 name: Delete
 on:
+  watch:
+    types: started
   schedule:
     # - cron: "0 0 * * SUN"
     - cron: '0 0 * * *'
