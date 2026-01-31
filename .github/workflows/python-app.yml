@@ -1,4 +1,4 @@
-name: Python application
+name: 定时收集器
 
 on:
   #push:
