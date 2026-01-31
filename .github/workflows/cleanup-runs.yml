@@ -25,8 +25,8 @@ jobs:
           # 清理当前仓库的记录
           repository: ${{ github.repository }}
           # 核心参数：保留最近30天的记录
-          retain_days: 5
+          retain_days: 1
           # 为每个工作流至少保留5次最新运行，防止误删
-          keep_minimum_runs: 5
+          keep_minimum_runs: 1
           # 可选：仅删除特定工作流，例如只清理本清理任务的历史
           # delete_workflow_pattern: 'cleanup-runs.yml'
