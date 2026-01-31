@@ -1,8 +1,8 @@
 name: Cleanup Old Workflow Runs
 
 on:
-  watch:
-    types: started
+  # watch:
+  #   types: started
   schedule:
     # 设置为每天UTC时间0点（北京时间8点）运行
     - cron: '0 0 * * *'
