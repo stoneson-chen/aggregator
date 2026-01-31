@@ -1,0 +1,63 @@
+name: 定时同步fork的代码与上游仓库保持更新
+# name: Sync Fork with Upstream
+
+on:
+  schedule:
+    # 同步频率设置（根据需求选择）
+    - cron: '0 0 * * *'        # 每天UTC时间0点（北京时间8点）
+    # - cron: '0 */6 * * *'     # 每6小时同步一次
+    # - cron: '0 0 * * 0'       # 每周日UTC时间0点
+  workflow_dispatch:           # 允许手动触发
+  push:
+    branches: [ main ]        # 上游仓库推送时触发（需要webhook）
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整历史记录
+          
+      - name: Sync fork
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+        with:
+          # 必填：上游仓库地址（格式：owner/repo）
+          # upstream_repo: ORIGINAL_OWNER/ORIGINAL_REPOSITORY
+          upstream_sync_repo: wzdnzd/aggregator
+          
+          # 同步策略配置
+          upstream_sync_branch: main
+          target_sync_branch: main
+          # 使用GITHUB_TOKEN进行身份验证，通常无需手动设置，由GitHub自动提供
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # sync_branch_only: 'main'           # 只同步main分支
+          # merge_method: 'merge'              # 合并方式：merge/rebase/hard-reset
+          # conflict_resolution: 'theirs'       # 冲突解决策略：theirs/ours
+          
+          # 身份配置
+          git_config_user: 'github-actions[bot]'
+          git_config_email: 'github-actions[bot]@users.noreply.github.com'
+          
+          # 安全配置
+          # allow_empty_commits: false         # 不允许空提交
+          # force_push: false                 # 不强制推送
+          
+          # 可选：合并策略
+          git_config_pull_rebase: 'false'  # 使用merge而非rebase
+
+          # 高级git参数
+          upstream_pull_args: '--no-edit --strategy-option=theirs'  # 无交互合并，采用上游更改解决冲突
+          # target_branch_push_args: '--force'  # 强制推送（谨慎使用）
+          
+          # 可选：测试模式（设为true只显示将要执行的操作，不实际执行）
+          test_mode: 'false'
+
+      # 步骤3: 错误处理（可选）
+      - name: Sync check
+        if: failure()
+        run: |
+          echo "[Error] 由于上游仓库的workflow文件变更或其他原因，自动同步失败。您可能需要手动同步Fork一次。" [1,6](@ref)
+          exit 1
