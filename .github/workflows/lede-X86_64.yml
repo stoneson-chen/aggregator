@@ -105,7 +105,7 @@ jobs:
         msgtype: markdown
         content: |
           {
-            "title": "github.workflow 构建完成通知：",
+            "title": "github.workflow LEDE构建完成通知：",
             "text": "**lede-X86_64.yml <font color=#FF0000 size=4>构建完成</font>"
           }
         secret: "SECb72bffd2104d07454dc9754a6bf0a9f4fd1e8bf110de7b87d1f5af7a14e0598a"
@@ -123,7 +123,7 @@ jobs:
         msgtype: markdown
         content: |
           {
-            "title": "github.workflow 编译完成通知：",
+            "title": "github.workflow LEDE编译完成通知：",
             "text": "**lede-X86_64.yml <font color=#000000 size=4>上传编译包｜Upload artifact完成</font>"
           }
         secret: "SECb72bffd2104d07454dc9754a6bf0a9f4fd1e8bf110de7b87d1f5af7a14e0598a"
