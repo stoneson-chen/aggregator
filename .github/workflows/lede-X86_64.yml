@@ -36,7 +36,7 @@ jobs:
         sudo apt autoclean
         sudo apt-mark hold mysql-server mysql-server*
         sudo dpkg --configure -a
-        sudo rm -rf ~/.cache/* ~/.cache/* /swapfile /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/share/dotnet /etc/mysql /etc/php /var/cache/apt/archives
+        sudo rm -rf ~/.cache/* ~/.cache/* /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/share/dotnet /etc/mysql /etc/php /var/cache/apt/archives
         sudo truncate -s 0 /var/log/*.log
         sudo apt update -y
         sudo apt full-upgrade -y
